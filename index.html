@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flash Cards CCNA - Tema LoL</title>
+  <!-- Google Fonts (ex: "Cinzel" para título, inspirando estilo clássico) -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
+  <style>
+    /* Reset básico */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    /* Corpo da página com background escuro */
+    body {
+      background: #1E1E1E;
+      color: #FFF;
+      font-family: 'Open Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 2em;
+      color: #D4AF37; /* Dourado */
+      margin-bottom: 20px;
+      text-shadow: 0 0 5px rgba(212,175,55,0.8);
+    }
+
+    /* ----- FORMULÁRIO ----- */
+    form {
+      width: 320px;
+      background: linear-gradient(#2F2F2F, #242424);
+      border: 2px solid #D4AF37;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 0 15px rgba(212,175,55,0.3);
+    }
+    form label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #D4AF37;
+    }
+    form input {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 2px solid #D4AF37;
+      border-radius: 6px;
+      background: #1E1E1E;
+      color: #FFF;
+      font-size: 14px;
+    }
+    form button {
+      width: 100%;
+      padding: 12px;
+      background: #D4AF37;
+      color: #1E1E1E;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      font-size: 14px;
+    }
+    form button:hover {
+      background: #E1C16E;
+      transform: scale(1.05);
+    }
+
+    /* ----- CONTAINER DOS FLASHCARDS ----- */
+    .flashcards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    /* ----- ESTILO DOS CARDS ----- */
+    .card {
+      width: 260px;
+      height: 380px;
+      perspective: 1000px;
+      position: relative;
+      animation: fadeIn 0.6s forwards;
+      opacity: 0;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    .fade-out {
+      animation: fadeOut 0.5s forwards;
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: scale(0.9); }
+    }
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      position: relative;
+    }
+    .card.flip .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    /* Faces do Card (frente e verso) */
+    .card-side {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border: 2px solid #D4AF37;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(212,175,55,0.3);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: linear-gradient(#2F2F2F, #1E1E1E);
+      color: #FFF;
+      padding: 15px;
+    }
+    /* Decorando com moldura “dourada” e ornamentos */
+    .card-side::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      border: 5px solid transparent;
+      border-image: linear-gradient(to bottom, #FFD700, #B8860B) 1;
+      border-image-slice: 1;
+      border-radius: 8px;
+      z-index: 1;
+    }
+
+    /* Frente do Card */
+    .card-front {
+      transform: rotateY(0deg);
+      z-index: 2;
+    }
+    /* Verso do Card */
+    .card-back {
+      transform: rotateY(180deg);
+    }
+
+    /* Conteúdo dentro do card (frente e verso) */
+    .card-content {
+      position: relative;
+      z-index: 2; /* Ficar acima do ::before */
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    /* Título do Card (Pergunta) */
+    .card-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      color: #E1C16E;
+      text-shadow: 0 0 5px rgba(212,175,55,0.7);
+    }
+
+    /* Efeito de hover no card */
+    .card:hover {
+      transform: scale(1.02);
+      transition: transform 0.3s;
+    }
+
+    /* ----- BOTÃO DE REMOÇÃO ----- */
+    .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: #B22222;
+      color: #FFF;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      font-size: 18px;
+      line-height: 30px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+      transition: transform 0.2s;
+      z-index: 3;
+    }
+    .remove-btn:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Flash Cards</h1>
+  
+  <!-- Formulário para adicionar flashcards -->
+  <form id="flashcard-form">
+    <label for="question">Pergunta:</label>
+    <input type="text" id="question" required placeholder="Digite a pergunta">
+    
+    <label for="answer">Resposta:</label>
+    <input type="text" id="answer" required placeholder="Digite a resposta">
+    
+    <button type="submit">Adicionar Flashcard</button>
+  </form>
+  
+  <!-- Container onde os flashcards serão exibidos -->
+  <div class="flashcards-container" id="flashcards-container">
+    <!-- Flashcards serão inseridos aqui via JavaScript -->
+  </div>
+  
+  <script>
+    // Recupera os flashcards salvos ou inicializa um array vazio
+    let flashcards = JSON.parse(localStorage.getItem('flashcards')) || [];
+    
+    const flashcardsContainer = document.getElementById('flashcards-container');
+    const form = document.getElementById('flashcard-form');
+    
+    // Função para renderizar os flashcards
+    function renderFlashcards() {
+      flashcardsContainer.innerHTML = ''; // Limpa o container
+      flashcards.forEach((card, index) => {
+        const cardElement = document.createElement('div');
+        cardElement.classList.add('card');
+        cardElement.innerHTML = `
+          <div class="card-inner">
+            <!-- Frente do card -->
+            <div class="card-side card-front">
+              <button class="remove-btn" title="Remover" data-index="${index}">&times;</button>
+              <div class="card-content">
+                <div class="card-title">Pergunta</div>
+                <p>${card.question}</p>
+              </div>
+            </div>
+            <!-- Verso do card -->
+            <div class="card-side card-back">
+              <div class="card-content">
+                <div class="card-title">Resposta</div>
+                <p>${card.answer}</p>
+              </div>
+            </div>
+          </div>
+        `;
+        // Efeito flip ao clicar na carta (exceto no botão de remover)
+        cardElement.addEventListener('click', () => {
+          cardElement.classList.toggle('flip');
+        });
+        
+        // Botão de remover com animação fade-out
+        const removeBtn = cardElement.querySelector('.remove-btn');
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // Impede flip ao clicar no botão
+          cardElement.classList.add('fade-out');
+          setTimeout(() => {
+            flashcards.splice(index, 1);
+            localStorage.setItem('flashcards', JSON.stringify(flashcards));
+            renderFlashcards();
+          }, 500);
+        });
+        
+        flashcardsContainer.appendChild(cardElement);
+      });
+    }
+    
+    // Evento para adicionar um novo flashcard
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const questionInput = document.getElementById('question');
+      const answerInput = document.getElementById('answer');
+      
+      const newCard = {
+        question: questionInput.value.trim(),
+        answer: answerInput.value.trim()
+      };
+      
+      flashcards.push(newCard);
+      localStorage.setItem('flashcards', JSON.stringify(flashcards));
+      renderFlashcards();
+      form.reset();
+    });
+    
+    // Renderiza os flashcards salvos ao carregar a página
+    renderFlashcards();
+  </script>
+</body>
+</html>
