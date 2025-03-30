@@ -5,150 +5,106 @@
   <title>Flash Cards CCNA por Tema</title>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Open+Sans&display=swap" rel="stylesheet">
   <style>
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{
-      background:#1E1E1E;color:#FFF;font-family:'Open Sans',sans-serif;padding:20px;text-align:center;
-    }
-    h1,h2,h3{font-family:'Cinzel',serif;color:#D4AF37;margin-bottom:15px;text-shadow:0 0 5px rgba(212,175,55,0.8);}
-    form,input,button{max-width:320px;width:90%;padding:10px;border-radius:6px;margin:8px auto;border:none;}
-    button{background:#D4AF37;color:#1E1E1E;cursor:pointer;font-weight:bold;}
-    button:hover{background:#E1C16E;}
-    .cards{display:flex;flex-wrap:wrap;justify-content:center;gap:15px;}
-    .card,.tema{
-      width:260px;height:360px;perspective:1000px;position:relative;
-    }
-    .card-inner{
-      position:relative;width:100%;height:100%;text-align:center;transition:transform .6s;transform-style:preserve-3d;
-    }
-    .card.flip .card-inner{transform:rotateY(180deg);}
-    .card-side{
-      position:absolute;width:100%;height:100%;backface-visibility:hidden;border:2px solid #D4AF37;border-radius:10px;padding:20px;display:flex;flex-direction:column;justify-content:center;align-items:center;background:linear-gradient(#2F2F2F,#1E1E1E);box-shadow:0 0 15px rgba(212,175,55,0.3);
-    }
-    .card-back{transform:rotateY(180deg);}
-    .remove-btn{
-      position:absolute;top:5px;right:5px;width:25px;height:25px;border-radius:50%;background:#B22222;color:#FFF;border:none;cursor:pointer;line-height:25px;font-size:16px;z-index:5;
-    }
+    *{box-sizing:border-box;margin:0;padding:0}body{background:#1E1E1E;color:#FFF;font-family:'Open Sans',sans-serif;padding:20px;text-align:center}h1{font-family:'Cinzel',serif;color:#FFD700;margin-bottom:15px;text-shadow:0 0 5px rgba(255,215,0,0.8)}h2,h3{font-family:'Cinzel',serif;color:#FFF;margin-bottom:15px;text-shadow:0 0 5px rgba(255,255,255,0.8)}form,input,button{max-width:320px;width:90%;padding:10px;border-radius:6px;margin:8px auto;border:none}button{background:#1E90FF;color:#1E1E1E;cursor:pointer;font-weight:bold;transition:background .3s}button:hover{background:#1C86EE}.cards{display:flex;flex-wrap:wrap;justify-content:center;gap:15px;margin-top:20px}.card,.tema{width:260px;height:380px;perspective:1000px;position:relative}.card-inner{position:relative;width:100%;height:100%;text-align:center;transition:transform .6s;transform-style:preserve-3d}.card.flip .card-inner{transform:rotateY(180deg)}.card-side{position:absolute;width:100%;height:100%;backface-visibility:hidden;background:linear-gradient(#1E90FF,#0D47A1);border:2px solid #1E90FF;border-radius:12px;padding:20px;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 0 15px rgba(30,144,255,0.3)}.card-back{transform:rotateY(180deg)}.remove-btn{position:absolute;top:5px;right:5px;width:25px;height:25px;border-radius:50%;background:#004080;color:#FFF;border:none;cursor:pointer;line-height:25px;font-size:16px;z-index:5}.card-side h3{font-family:'Cinzel',serif;font-size:1.2rem;margin-bottom:10px;color:#FFD700;text-shadow:0 0 4px rgba(0,0,0,0.7)}.card-side p{font-family:'Open Sans',sans-serif;font-size:1rem;line-height:1.4;text-shadow:0 0 2px rgba(0,0,0,0.5)}.card-side button{margin-top:15px;width:auto;padding:8px 12px}
   </style>
 </head>
 <body>
-
-<h1>Flash Cards CCNA por Tema</h1>
-
-<form id="form">
-  <input id="theme" placeholder="Tema" required>
-  <input id="question" placeholder="Pergunta" required>
-  <input id="answer" placeholder="Resposta" required>
-  <button type="submit">Adicionar Flashcard</button>
-</form>
-
-<button onclick="downloadJSON()">Baixar Backup</button>
-<input type="file" id="fileInput" accept=".json" style="display:none" onchange="uploadJSON(event)">
-<button onclick="document.getElementById('fileInput').click()">Carregar Backup</button>
-
-<div id="container"></div>
-
-<script>
-const container=document.getElementById('container');
-let flashcards=JSON.parse(localStorage.getItem('flashcards'))||[];
-
-function salvar(){
-  localStorage.setItem('flashcards',JSON.stringify(flashcards));
-}
-
-function renderTemas(){
-  container.innerHTML='';
-  const temas=[...new Set(flashcards.map(c=>c.theme))];
-  if(!temas.length){container.innerHTML='<p>Nenhum tema cadastrado.</p>';return;}
-  const cards=document.createElement('div');cards.className='cards';
-  temas.forEach(tema=>{
-    const div=document.createElement('div');div.className='tema card';
-    div.innerHTML=`<div class="card-inner">
-      <div class="card-side">
-        <h3>${tema}</h3>
-        <button onclick="abrirTema('${tema}')">Abrir</button>
-        <button class="remove-btn" onclick="removerTema(event,'${tema}')">×</button>
-      </div></div>`;
-    cards.appendChild(div);
-  });
-  container.appendChild(cards);
-}
-
-function abrirTema(tema){
-  container.innerHTML=`<button onclick="renderTemas()">Voltar aos Temas</button><h2>${tema}</h2>`;
-  const cards=document.createElement('div');cards.className='cards';
-  flashcards.filter(c=>c.theme===tema).forEach((card,index)=>{
-    const div=document.createElement('div');div.className='card';
-    div.innerHTML=`
-    <div class="card-inner">
-      <div class="card-side card-front">
-        <h3>Pergunta</h3><p>${card.question}</p>
-      </div>
-      <div class="card-side card-back">
-        <h3>Resposta</h3><p>${card.answer}</p>
-      </div>
-    </div>
-    <button class="remove-btn" onclick="removerCard(event,'${tema}',${index})">×</button>`;
-    
-    div.addEventListener('click',(e)=>{
-      if(!e.target.classList.contains('remove-btn')){
-        div.classList.toggle('flip');
-      }
-    });
-    cards.appendChild(div);
-  });
-  container.appendChild(cards);
-}
-
-function removerTema(e,tema){
-  e.stopPropagation();
-  if(confirm(`Excluir tema "${tema}" e seus cards?`)){
-    flashcards=flashcards.filter(c=>c.theme!==tema);salvar();renderTemas();
-  }
-}
-
-function removerCard(e,tema,i){
-  e.stopPropagation();
-  const temaCards=flashcards.filter(c=>c.theme===tema);
-  const idx=flashcards.indexOf(temaCards[i]);
-  flashcards.splice(idx,1);salvar();abrirTema(tema);
-}
-
-document.getElementById('form').onsubmit=e=>{
-  e.preventDefault();
-  flashcards.push({
-    theme:theme.value.trim(),
-    question:question.value.trim(),
-    answer:answer.value.trim()
-  });
-  salvar();e.target.reset();renderTemas();
-};
-
-function downloadJSON(){
-  const data=JSON.stringify(flashcards,null,2);
-  const blob=new Blob([data],{type:"application/json"});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download='flashcards.json';a.click();
-}
-
-function uploadJSON(event){
-  const file=event.target.files[0];
-  if(file){
-    const reader=new FileReader();
-    reader.onload=e=>{
-      try{
-        const data=JSON.parse(e.target.result);
-        if(Array.isArray(data)){
-          flashcards=data;salvar();renderTemas();
-          alert('Dados carregados com sucesso!');
-        }else{alert('Formato inválido!');}
-      }catch(err){alert('Erro ao carregar arquivo JSON!');}
-    };
-    reader.readAsText(file);
-  }
-}
-
-renderTemas();
-</script>
+  <h1>Flash Cards CCNA por Tema</h1>
+  <form id="form">
+    <input id="theme" placeholder="Tema" required>
+    <input id="question" placeholder="Pergunta" required>
+    <input id="answer" placeholder="Resposta" required>
+    <button type="submit">Adicionar Flashcard</button>
+  </form>
+  <button id="downloadBtn">Baixar Backup</button>
+  <input type="file" id="fileInput" accept=".json" style="display:none">
+  <button id="uploadBtn">Carregar Backup</button>
+  <div id="container"></div>
+  <script>
+    (() => {
+      const $=document.getElementById.bind(document),
+            container=$("container"), form=$("form"),
+            downloadBtn=$("downloadBtn"), fileInput=$("fileInput"),
+            uploadBtn=$("uploadBtn"), themeInput=$("theme"),
+            qInput=$("question"), aInput=$("answer");
+      let flashcards=JSON.parse(localStorage.getItem("flashcards"))||[];
+      const save=()=>localStorage.setItem("flashcards",JSON.stringify(flashcards)),
+        createThemeCard=tema=>{
+          const d=document.createElement("div");
+          d.className="tema card";
+          d.innerHTML=`<div class="card-inner"><div class="card-side"><h3>${tema}</h3><button class="abrir-btn" data-tema="${tema}">Abrir</button><button class="remove-btn" data-tema="${tema}">×</button></div></div>`;
+          return d;
+        },
+        createFlashcardCard=(cardData,tema,index)=>{
+          const d=document.createElement("div");
+          d.className="card";
+          d.innerHTML=`<div class="card-inner"><div class="card-side card-front"><h3>Pergunta</h3><p>${cardData.question}</p></div><div class="card-side card-back"><h3>Resposta</h3><p>${cardData.answer}</p></div></div><button class="remove-btn" data-tema="${tema}" data-index="${index}">×</button>`;
+          d.addEventListener("click",e=>{if(!e.target.classList.contains("remove-btn"))d.classList.toggle("flip")});
+          return d;
+        },
+        renderTemas=()=>{
+          container.innerHTML="";
+          const temas=[...new Set(flashcards.map(c=>c.theme))];
+          if(!temas.length){container.innerHTML="<p>Nenhum tema cadastrado.</p>";return}
+          const cards=document.createElement("div");
+          cards.className="cards";
+          temas.forEach(t=>cards.appendChild(createThemeCard(t)));
+          container.appendChild(cards);
+        },
+        abrirTema=tema=>{
+          container.innerHTML=`<button id="voltarBtn">Voltar aos Temas</button><h2>${tema}</h2>`;
+          const cards=document.createElement("div");
+          cards.className="cards";
+          flashcards.filter(c=>c.theme===tema).forEach((cardData,i)=>cards.appendChild(createFlashcardCard(cardData,tema,i)));
+          container.appendChild(cards);
+          $("voltarBtn").addEventListener("click",renderTemas);
+        };
+      container.addEventListener("click",e=>{
+        const t=e.target;
+        if(t.classList.contains("abrir-btn")) abrirTema(t.dataset.tema);
+        else if(t.classList.contains("remove-btn")){
+          e.stopPropagation();
+          let tema=t.dataset.tema;
+          if(t.hasAttribute("data-index")){
+            let i=+t.dataset.index, temaCards=flashcards.filter(c=>c.theme===tema),
+                idx=flashcards.indexOf(temaCards[i]);
+            if(idx>-1){flashcards.splice(idx,1);save();abrirTema(tema)}
+          } else if(confirm(`Excluir tema "${tema}" e seus cards?`)){
+            flashcards=flashcards.filter(c=>c.theme!==tema);
+            save();renderTemas();
+          }
+        }
+      });
+      form.addEventListener("submit",e=>{
+        e.preventDefault();
+        flashcards.push({theme:themeInput.value.trim(),question:qInput.value.trim(),answer:aInput.value.trim()});
+        save();form.reset();renderTemas();
+      });
+      downloadBtn.addEventListener("click",()=>{
+        const data=JSON.stringify(flashcards,null,2),
+              blob=new Blob([data],{type:"application/json"}),
+              a=document.createElement("a");
+        a.href=URL.createObjectURL(blob);
+        a.download="flashcards.json";
+        a.click();
+      });
+      uploadBtn.addEventListener("click",()=>fileInput.click());
+      fileInput.addEventListener("change",e=>{
+        const file=e.target.files[0];
+        if(file){
+          const r=new FileReader();
+          r.onload=e=>{
+            try{
+              let data=JSON.parse(e.target.result);
+              if(Array.isArray(data)){flashcards=data;save();renderTemas();alert("Dados carregados com sucesso!")}
+              else alert("Formato inválido!")
+            } catch(err){alert("Erro ao carregar arquivo JSON!")}
+          };
+          r.readAsText(file);
+        }
+      });
+      renderTemas();
+    })();
+  </script>
 </body>
 </html>
